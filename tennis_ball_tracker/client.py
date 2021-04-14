@@ -32,7 +32,8 @@ class client(object):
         req = msg_handler()
         reply = self.ctrl_session.send_receive(dict(req), block=True)
         
-        assert msg_handler_response(**reply).successful == True
+        msg = msg_handler_response(**reply)
+        assert (msg.successful == True), msg.msg
     
     def stop_tracking_tennisball(self):
         msg_handler = messages.stop_tracking_req
@@ -41,7 +42,8 @@ class client(object):
         req = msg_handler()
         reply = self.ctrl_session.send_receive(dict(req), block=True)
         
-        assert msg_handler_response(**reply).successful == True
+        msg = msg_handler_response(**reply)
+        assert (msg.successful == True), msg.msg
 
     def calibrate_camera(self):
         msg_handler = messages.calibrate_camera_req
@@ -50,7 +52,8 @@ class client(object):
         req = msg_handler()
         reply = self.ctrl_session.send_receive(dict(req), block=True)
         
-        assert msg_handler_response(**reply).successful == True
+        msg = msg_handler_response(**reply)
+        assert (msg.successful == True), msg.msg
 
     def blink_led(self, period_ms, duty_cycle_percent):
         msg_handler = messages.configure_led_req
@@ -59,7 +62,8 @@ class client(object):
         req = msg_handler(period_ms, duty_cycle_percent)
         reply = self.ctrl_session.send_receive(dict(req), block=True)
         
-        assert msg_handler_response(**reply).successful == True
+        msg = msg_handler_response(**reply)
+        assert (msg.successful == True), msg.msg
 
     # Debug commands
 
@@ -70,7 +74,8 @@ class client(object):
         req = msg_handler()
         reply = self.ctrl_session.send_receive(dict(req), block=True)
         
-        assert msg_handler_response(**reply).successful == True
+        msg = msg_handler_response(**reply)
+        assert (msg.successful == True), msg.msg
 
     def stop_sending_camera_feed(self):
         msg_handler = messages.stop_sending_camera_feed_req
@@ -79,7 +84,8 @@ class client(object):
         req = msg_handler()
         reply = self.ctrl_session.send_receive(dict(req), block=True)
         
-        assert msg_handler_response(**reply).successful == True
+        msg = msg_handler_response(**reply)
+        assert (msg.successful == True), msg.msg
 
     def process_camera_feed(self):
         msg_handler = messages.camera_feed_data
@@ -92,7 +98,8 @@ if __name__ == "__main__":
     import tennis_ball_tracker.config as config
     client_ = client(config.CTRL_PORT, config.CAMERA_FEED_PORT)
     client_.connect(config.IP_ADDRESS)
-    
+    client_.calibrate_camera()
+
     client_.start_sending_camera_feed()
     
     import datetime
