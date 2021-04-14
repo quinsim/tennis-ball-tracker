@@ -38,6 +38,7 @@ class server(object):
             api.CMD_START_SENDING_CAMERA_FEED: self.start_sending_camera_feed,
             api.CMD_STOP_SENDING_CAMERA_FEED: self.stop_sending_camera_feed,
             api.CMD_GET_CAMERA_FEED: self.get_camera_feed,
+            api.CMD_TEST_CAMERA_FPS_REQ: self.test_camera_fps,
         }
     
     def connect(self, ip_address):
