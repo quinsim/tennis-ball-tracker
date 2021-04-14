@@ -8,8 +8,8 @@ import numpy as np
 
 # Local application imports
 
-DOT_SO_PATH = "/fusion2/camera_feed.so"
-# DOT_SO_PATH = "/fusion2/imageFeedthroughDriver.so"
+# DOT_SO_PATH = "/fusion2/camera_feed.so"
+DOT_SO_PATH = "/fusion2/imageFeedthroughDriver.so"
 
 class Frame(object):
     """
@@ -30,18 +30,18 @@ class Frame(object):
         self.ALL = data
         self.RGB = data[:,:,:3]
         self.GREYSCALE = data[:,:,3]
-        # Clear the Red and Green
-        b = self.RGB.copy()
-        b[:,:,1:] = 0
-        self.BLUE = b
-        # Clear the Red and Blue
-        g = self.RGB.copy()
-        g[:,:,0] = g[:,:,2] = 0
-        self.GREEN = g
-        # Clear the Blue and Green
-        r = self.RGB.copy()
-        r[:,:,:2] = 0
-        self.RED = r
+        # # Clear the Red and Green
+        # b = self.RGB.copy()
+        # b[:,:,1:] = 0
+        # self.BLUE = b
+        # # Clear the Red and Blue
+        # g = self.RGB.copy()
+        # g[:,:,0] = g[:,:,2] = 0
+        # self.GREEN = g
+        # # Clear the Blue and Green
+        # r = self.RGB.copy()
+        # r[:,:,:2] = 0
+        # self.RED = r
 
 class CameraFeed(object):
     """
@@ -52,7 +52,7 @@ class CameraFeed(object):
     def __init__(self):
         self.dll = ctypes.cdll.LoadLibrary(DOT_SO_PATH)
         self.dll.init()
-        self.blank_stereo_data = np.ones((480, 752, 8), dtype=np.uint8)
+        self.__stereo_data = np.ones((480, 752, 8), dtype=np.uint8)
     
     def getStereoFrames(self):
         """
@@ -61,9 +61,8 @@ class CameraFeed(object):
         Returns:
             Tuple[Frame, Frame]: (the left frame, the right frame)
         """
-        stereo_data = self.blank_stereo_data.copy()
-        self.dll.getFrame(ctypes.c_void_p(stereo_data.ctypes.data))
-        return Frame(stereo_data[:,:,:4]), Frame(stereo_data[:,:,4:])
+        self.dll.getFrame(ctypes.c_void_p(self.__stereo_data.ctypes.data))
+        return Frame(self.__stereo_data[:,:,:4]), Frame(self.__stereo_data[:,:,4:])
 
     def getStereoAll(self):
         """
@@ -85,35 +84,35 @@ class CameraFeed(object):
         left, right = self.getStereoFrames()
         return left.RGB, right.RGB
 
-    def getStereoRed(self):
-        """
-        Gets the red stereo data for the left and right camera.
+    # def getStereoRed(self):
+    #     """
+    #     Gets the red stereo data for the left and right camera.
 
-        Returns:
-            Tuple[]: (the left red frame, the right red frame)
-        """
-        left, right = self.getStereoFrames()
-        return left.RED, right.RED
+    #     Returns:
+    #         Tuple[]: (the left red frame, the right red frame)
+    #     """
+    #     left, right = self.getStereoFrames()
+    #     return left.RED, right.RED
     
-    def getStereoGreen(self):
-        """
-        Gets the green stereo data for the left and right camera.
+    # def getStereoGreen(self):
+    #     """
+    #     Gets the green stereo data for the left and right camera.
 
-        Returns:
-            Tuple[]: (the left green frame, the right green frame)
-        """
-        left, right = self.getStereoFrames()
-        return left.GREEN, right.GREEN
+    #     Returns:
+    #         Tuple[]: (the left green frame, the right green frame)
+    #     """
+    #     left, right = self.getStereoFrames()
+    #     return left.GREEN, right.GREEN
     
-    def getStereoBlue(self):
-        """
-        Gets the blue stereo data for the left and right camera.
+    # def getStereoBlue(self):
+    #     """
+    #     Gets the blue stereo data for the left and right camera.
 
-        Returns:
-            Tuple[]: (the left blue frame, the right blue frame)
-        """
-        left, right = self.getStereoFrames()
-        return left.BLUE, right.BLUE
+    #     Returns:
+    #         Tuple[]: (the left blue frame, the right blue frame)
+    #     """
+    #     left, right = self.getStereoFrames()
+    #     return left.BLUE, right.BLUE
 
     def getStereoGrey(self):
         """
@@ -173,62 +172,62 @@ class CameraFeed(object):
         self.saveStereoFrame(os.path.join(dirname, left), left_frame)
         self.saveStereoFrame(os.path.join(dirname, right), right_frame)
 
-    def saveStereoRed(self, filepath):
-        """
-        Save the RGB stereo frame of the left and right camera to files.
+    # def saveStereoRed(self, filepath):
+    #     """
+    #     Save the RGB stereo frame of the left and right camera to files.
 
-        filepath example: ``/tmp/stereo_all.bmp``
+    #     filepath example: ``/tmp/stereo_all.bmp``
         
-        Args:
-            filepath (str): The path the file will be saved to.
-        """
-        dirname = os.path.dirname(filepath)
-        basename = os.path.basename(filepath)
+    #     Args:
+    #         filepath (str): The path the file will be saved to.
+    #     """
+    #     dirname = os.path.dirname(filepath)
+    #     basename = os.path.basename(filepath)
 
-        left = "left_{}".format(basename)
-        right = "right_{}".format(basename)
+    #     left = "left_{}".format(basename)
+    #     right = "right_{}".format(basename)
 
-        left_frame, right_frame = self.getStereoRed()
-        self.saveStereoFrame(os.path.join(dirname, left), left_frame)
-        self.saveStereoFrame(os.path.join(dirname, right), right_frame)
+    #     left_frame, right_frame = self.getStereoRed()
+    #     self.saveStereoFrame(os.path.join(dirname, left), left_frame)
+    #     self.saveStereoFrame(os.path.join(dirname, right), right_frame)
     
-    def saveStereoGreen(self, filepath):
-        """
-        Save the green stereo frame of the left and right camera to files.
+    # def saveStereoGreen(self, filepath):
+    #     """
+    #     Save the green stereo frame of the left and right camera to files.
 
-        filepath example: ``/tmp/stereo_all.bmp``
+    #     filepath example: ``/tmp/stereo_all.bmp``
         
-        Args:
-            filepath (str): The path the file will be saved to.
-        """
-        dirname = os.path.dirname(filepath)
-        basename = os.path.basename(filepath)
+    #     Args:
+    #         filepath (str): The path the file will be saved to.
+    #     """
+    #     dirname = os.path.dirname(filepath)
+    #     basename = os.path.basename(filepath)
 
-        left = "left_{}".format(basename)
-        right = "right_{}".format(basename)
+    #     left = "left_{}".format(basename)
+    #     right = "right_{}".format(basename)
 
-        left_frame, right_frame = self.getStereoGreen()
-        self.saveStereoFrame(os.path.join(dirname, left), left_frame)
-        self.saveStereoFrame(os.path.join(dirname, right), right_frame)
+    #     left_frame, right_frame = self.getStereoGreen()
+    #     self.saveStereoFrame(os.path.join(dirname, left), left_frame)
+    #     self.saveStereoFrame(os.path.join(dirname, right), right_frame)
     
-    def saveStereoBlue(self, filepath):
-        """
-        Save the blue stereo frame of the left and right camera to files.
+    # def saveStereoBlue(self, filepath):
+    #     """
+    #     Save the blue stereo frame of the left and right camera to files.
 
-        filepath example: ``/tmp/stereo_all.bmp``
+    #     filepath example: ``/tmp/stereo_all.bmp``
         
-        Args:
-            filepath (str): The path the file will be saved to.
-        """
-        dirname = os.path.dirname(filepath)
-        basename = os.path.basename(filepath)
+    #     Args:
+    #         filepath (str): The path the file will be saved to.
+    #     """
+    #     dirname = os.path.dirname(filepath)
+    #     basename = os.path.basename(filepath)
 
-        left = "left_{}".format(basename)
-        right = "right_{}".format(basename)
+    #     left = "left_{}".format(basename)
+    #     right = "right_{}".format(basename)
 
-        left_frame, right_frame = self.getStereoBlue()
-        self.saveStereoFrame(os.path.join(dirname, left), left_frame)
-        self.saveStereoFrame(os.path.join(dirname, right), right_frame)
+    #     left_frame, right_frame = self.getStereoBlue()
+    #     self.saveStereoFrame(os.path.join(dirname, left), left_frame)
+    #     self.saveStereoFrame(os.path.join(dirname, right), right_frame)
     
     def saveStereoGrey(self, filepath):
         """
@@ -271,7 +270,6 @@ if __name__ == "__main__":
     #     frames_per_second = number_of_frames / total_time.total_seconds()
     #     del camera
     #     return frames_per_second
-
     def test_frames_per_second(number_of_frames):
 
         camera = CameraFeed()
