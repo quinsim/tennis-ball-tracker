@@ -114,6 +114,15 @@ class client(object):
 
         return left_feed, right_feed
 
+    def test_camera_fps(self):
+        msg_handler = messages.test_camera_fps_req
+        msg_handler_response = messages.test_camera_fps_rep
+
+        req = msg_handler()
+        reply = self.ctrl_session.send_receive(dict(req), block=True)
+
+        msg = msg_handler_response(**reply)
+        return msg.fps
 
 if __name__ == "__main__":
     import tennis_ball_tracker.config as config

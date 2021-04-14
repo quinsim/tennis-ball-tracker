@@ -31,6 +31,7 @@ class sub_message_t(object):
     def __str__(self):
         return str(dict(self))
 
+
 class message_t(sub_message_t):
     """
     Defines the requirements of a message.
@@ -186,7 +187,6 @@ class start_sending_camera_feed_req(message_t):
         super(start_sending_camera_feed_req, self).__init__(api.CMD_START_SENDING_CAMERA_FEED)
 
 
-
 class stop_sending_camera_feed_req(message_t):
     """
     Instructs the device to stop sending feed from the left and right camera.
@@ -199,6 +199,7 @@ class stop_sending_camera_feed_req(message_t):
     def __init__(self, **kwargs):
         super(stop_sending_camera_feed_req, self).__init__(api.CMD_STOP_SENDING_CAMERA_FEED)
 
+
 class get_camera_feed_req(message_t):
     """
     Instructs the device to send the feed from the left and right camera.
@@ -210,6 +211,7 @@ class get_camera_feed_req(message_t):
     """
     def __init__(self, **kwargs):
         super(get_camera_feed_req, self).__init__(api.CMD_GET_CAMERA_FEED)
+
 
 class camera_feed_data(message_t):
     TOPIC = "camera.feed"
@@ -224,5 +226,12 @@ class camera_feed_data(message_t):
         return str({"command": self.command})
     
 
-if __name__ == "__main__":
-    print(str(camera_feed_data("Test", "Test")))
+class test_camera_fps_req(message_t):
+    def __init__(self, **kwargs):
+        super(test_camera_fps_req, self).__init__(api.CMD_TEST_CAMERA_FPS_REQ)
+
+
+class test_camera_fps_rep(message_t):
+    def __init__(self, fps, **kwargs):
+        super(test_camera_fps_rep, self).__init__(api.CMD_TEST_CAMERA_FPS_REP)
+        self.fps = fps
