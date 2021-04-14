@@ -1,7 +1,8 @@
 # Standard library imports
+import cv2
+import base64
 import logging
 import threading
-
 # Third party imports
 
 # Local application imports
@@ -141,7 +142,9 @@ class server(object):
         while self.is_connected:
             if self.send_camera_feed:
                 left, right = self.camera.getStereoFrames()
-                req = messages.camera_feed_data(left, right)
+                left_str = base64.b64encode(cv2.imencode('.jpg', left)[1]).decode()
+                right_str = base64.b64encode(cv2.imencode('.jpg', right)[1]).decode()
+                req = messages.camera_feed_data(left_str, right_str)
                 self.camera_feed_session.send(dict(req))
 
     def __str__(self):
