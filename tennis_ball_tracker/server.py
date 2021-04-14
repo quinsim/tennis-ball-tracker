@@ -142,8 +142,8 @@ class server(object):
                     print("Request received {request}".format(request=reply))
                     response = handler(reply)
                     if response is not None:
-                        logging.debug("Response sent {response}".format(response=dict(response)))
-                        print("Response sent {response}".format(response=dict(response)))
+                        logging.debug("Response sent {response}".format(response=response))
+                        print("Response sent {response}".format(response=response))
                         self.ctrl_session.send(dict(response))
 
     def run_camera_feed(self):
