@@ -145,6 +145,8 @@ class server(object):
                         logging.debug("Response sent {response}".format(response=response))
                         print("Response sent {response}".format(response=response))
                         self.ctrl_session.send(dict(response))
+        logging.debug("Stopping the {}".format(threading.current_thread().name))
+        print("Stopping the {}".format(threading.current_thread().name))
 
     def run_camera_feed(self):
         logging.debug("Started the {}".format(threading.current_thread().name))
@@ -156,11 +158,19 @@ class server(object):
                 right_str = base64.b64encode(cv2.imencode('.jpg', right.ALL)[1]).decode()
                 req = messages.camera_feed_data(left_str, right_str)
                 self.camera_feed_session.send(dict(req))
+        logging.debug("Stopping the {}".format(threading.current_thread().name))
+        print("Stopping the {}".format(threading.current_thread().name))
 
     def __str__(self):
         return "server"
 
 if __name__ == "__main__":
-    import tennis_ball_tracker.config as config
-    server_ = server(config.CTRL_PORT, config.CAMERA_FEED_PORT)
-    server_.connect(config.IP_ADDRESS)
+    try:
+        import tennis_ball_tracker.config as config
+        server_ = server(config.CTRL_PORT, config.CAMERA_FEED_PORT)
+        server_.connect(config.IP_ADDRESS)
+        while True:
+            pass
+    except KeyboardInterrupt:
+        print("Disconnecting from")
+        server_.disconnect()
