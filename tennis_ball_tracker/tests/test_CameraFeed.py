@@ -166,3 +166,13 @@ class test_CameraFeed(unittest.TestCase):
         self.file_exists(right_path)
         # self.assertTrue(np.array_equal(left, self.EXPECTED_GREY))
         # self.assertTrue(np.array_equal(right, self.EXPECTED_GREY))
+
+    def test_fps(self):
+        import datetime
+        number_of_frames = 100
+        now = datetime.datetime.now()
+        for _ in range(number_of_frames):
+            self.camera.getStereoFrames()
+        total_time = datetime.datetime.now() - now
+        fps = number_of_frames / total_time
+        self.assertGreaterEqual(fps, 60.0, f"{fps} fps is not greater than 60 fps.")
