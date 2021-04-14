@@ -1,4 +1,6 @@
 # Standard library imports
+import base64
+import numpy as np
 
 # Third party imports
 
@@ -94,22 +96,44 @@ class client(object):
         msg = msg_handler(**reply)
         return msg
 
+    def convert_img_str_to_numpy_ndarray(self, img_str):
+        jpg_original = base64.b64decode(img_str)
+        jpg_as_np = np.frombuffer(jpg_original, dtype=np.uint8)
+        return jpg_as_np
+
+    def get_camera_feed(self):
+        msg_handler = messages.get_camera_feed_req
+        msg_handler_response = messages.camera_feed_data
+
+        req = msg_handler()
+        reply = self.ctrl_session.send(dict(req), block=True)
+
+        msg = msg_handler_response(**reply)
+        left_feed = self.convert_img_str_to_numpy_ndarray(msg.left_feed)
+        right_feed = self.convert_img_str_to_numpy_ndarray(msg.right_feed)
+
+        return left_feed, right_feed
+
+
 if __name__ == "__main__":
     import tennis_ball_tracker.config as config
     client_ = client(config.CTRL_PORT, config.CAMERA_FEED_PORT)
     client_.connect(config.IP_ADDRESS)
-    client_.calibrate_camera()
 
-    client_.start_sending_camera_feed()
+    left, right = client_.get_camera_feed()
+    import cv2
+    cv2.imshow(cv2.imdecode(left, flags=1))
+    cv2.imshow(cv2.imdecode(right, flags=1))
+    # client_.start_sending_camera_feed()
     
-    import datetime
-    number_of_frames = 100
-    now = datetime.datetime.now()
-    for _ in range(number_of_frames):
-        client_.process_camera_feed()
-    total_time = datetime.datetime.now() - now
-    fps = number_of_frames / total_time
-    print("FPS {}".format(fps))
+    # import datetime
+    # number_of_frames = 100
+    # now = datetime.datetime.now()
+    # for _ in range(number_of_frames):
+    #     client_.process_camera_feed()
+    # total_time = datetime.datetime.now() - now
+    # fps = number_of_frames / total_time.total_seconds()
+    # print("FPS {}".format(fps))
 
     client_.stop_tracking_tennisball()
     client_.disconnect()
