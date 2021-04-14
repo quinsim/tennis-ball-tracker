@@ -221,5 +221,5 @@ class camera_feed_data(message_t):
     def __str__(self):
         # Since the left and right feed is so long, we do not
         # want it represented in the string.
-        return super(camera_feed_data, self).__str__()
+        return str(dict(super(camera_feed_data, self).__iter__()))
     
