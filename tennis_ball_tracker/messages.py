@@ -70,10 +70,11 @@ class status_rep(message_t):
     Attributes:    
         command (str): The requests command.
     """
-    def __init__(self, cmd_id, successful, **kwargs):
+    def __init__(self, cmd_id, successful, msg="" **kwargs):
         super(status_rep, self).__init__(api.CMD_STATUS)
         self.cmd_id = cmd_id
         self.successful = successful
+        self.msg = msg
 
 
 class start_tracking_req(message_t):
