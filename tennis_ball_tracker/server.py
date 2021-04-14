@@ -16,7 +16,7 @@ IP_ADDRESS = "127.0.0.1"
 class server(object):
 
     def __init__(self, ctrl_port, camera_feed_port):
-        self.camera
+        self.camera = None
         self.is_connected = False
         self.send_camera_feed = False
         
@@ -91,6 +91,8 @@ class server(object):
         return msg_response
 
     def run(self):
+        logging.debug("Started the {}".format(threading.current_thread().name))
+        print("Started the {}".format(threading.current_thread().name))
         while self.is_connected:
             try:
                 reply = self.ctrl_session.receive()
@@ -108,6 +110,8 @@ class server(object):
                         self.ctrl_session.send(dict(response))
 
     def run_camera_feed(self):
+        logging.debug("Started the {}".format(threading.current_thread().name))
+        print("Started the {}".format(threading.current_thread().name))
         while self.send_camera_feed and self.is_connected:
             left, right = self.camera.getStereoFrames()
             req = messages.camera_feed_data(left, right)
