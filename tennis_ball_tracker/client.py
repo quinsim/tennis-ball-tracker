@@ -106,7 +106,7 @@ class client(object):
         msg_handler_response = messages.camera_feed_data
 
         req = msg_handler()
-        reply = self.ctrl_session.send(dict(req), block=True)
+        reply = self.ctrl_session.send_receive(dict(req), block=True)
 
         msg = msg_handler_response(**reply)
         left_feed = self.convert_img_str_to_numpy_ndarray(msg.left_feed)
