@@ -89,8 +89,9 @@ class client(object):
         return msg
 
 if __name__ == "__main__":
-    client_ = client(5610, 5611)
-    client_.connect("127.0.0.1")
+    import tennis_ball_tracker.config as config
+    client_ = client(config.CTRL_PORT, config.CAMERA_FEED_PORT)
+    client_.connect(config.IP_ADDRESS)
     
     client_.start_sending_camera_feed()
     

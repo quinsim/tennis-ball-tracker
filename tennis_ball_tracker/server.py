@@ -117,8 +117,6 @@ class server(object):
         return "server"
 
 if __name__ == "__main__":
-    import time
-    server_ = server(5610, 5611)
-    server_.connect("127.0.0.1")
-    time.sleep(1)
-    server_.disconnect()
+    import tennis_ball_tracker.config as config
+    server_ = server(config.CTRL_PORT, config.CAMERA_FEED_PORT)
+    server_.connect(config.IP_ADDRESS)

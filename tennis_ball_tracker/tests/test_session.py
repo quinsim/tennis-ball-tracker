@@ -9,8 +9,9 @@ from tennis_ball_tracker import session
 
 class test_session(unittest.TestCase):
     def test_push_pull(self):
-        IP = "127.0.0.1"
-        PORT = 5612
+        import tennis_ball_tracker.config as config
+        IP = config.LOCAL_IP_ADDRESS
+        PORT = config.CTRL_PORT
         MSG_SENT = {"message": "Testing the connection"}
 
         # Start the push session
@@ -31,8 +32,9 @@ class test_session(unittest.TestCase):
 
     @unittest.skip("Not working")
     def test_pub_sub(self):
-        IP = "127.0.0.1"
-        PORT = 5612
+        import tennis_ball_tracker.config as config
+        IP = config.LOCAL_IP_ADDRESS
+        PORT = config.CTRL_PORT
         TOPIC = "test"
         MSG_SENT = {"message": "Testing the connection"}
 
@@ -58,8 +60,9 @@ class test_session(unittest.TestCase):
         # self.assertEquals(MSG_SENT, msg_received_2)
 
     def test_rep_req(self):
-        IP = "127.0.0.1"
-        PORT = 5612
+        import tennis_ball_tracker.config as config
+        IP = config.LOCAL_IP_ADDRESS
+        PORT = config.CTRL_PORT
         REQ_SENT = {"message": "Testing the connection"}
         REQ_RESPONSE = {"message": "Received the message"}
 
