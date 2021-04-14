@@ -21,10 +21,11 @@ class server(object):
         self.send_camera_feed = False
         
         self.ctrl_session = session.zmq_reply_session_t(ctrl_port)
-        self.ctrl_worker = threading.Thread(target=self.run, name=str(self) + " Ctrl Session")
-        
         self.camera_feed_session = session.zmq_push_session_t(camera_feed_port)
-        self.camera_feed_worker = threading.Thread(target=self.run_camera_feed, name=str(self) + " Camera Feed")
+        
+        ctrl_worker = threading.Thread(target=self.run, name=str(self) + "_ctrl_thread")
+        camera_feed_worker = threading.Thread(target=self.run_camera_feed, name=str(self) + "_camera_feed_thread")
+        self.workers = [ctrl_worker, camera_feed_worker]
     
         self.message_handler = {
             api.CMD_START_TRACKING_TENNISBALL: self.start_tracking_tennisball,
@@ -38,57 +39,82 @@ class server(object):
     
     def connect(self, ip_address):
         if not self.is_connected:
-            self.ctrl_session.start(ip_address)
             self.is_connected = True
-            self.ctrl_worker.start()
             self.camera = CameraFeed()
-    
+
+            self.ctrl_session.start(ip_address)
+            self.camera_feed_session.start(ip_address)
+            [worker.start() for worker in self.workers]
+            
     def disconnect(self):
         if self.is_connected:
             self.is_connected = False
-            # self.worker.join()
+            
+            [worker.join() for worker in self.workers]
             self.ctrl_session.stop()
+            self.camera_feed_session.stop()
+            
+            del self.camera
 
     def start_tracking_tennisball(self, reply):
+        result = True
+        msg = ""
+        
         msg_handler = messages.start_tracking_req(**reply)
-        msg_response = messages.status_rep(msg_handler.command, True)
 
-        return msg_response
+        return messages.status_rep(msg_handler.command, result, msg)
     
     def stop_tracking_tennisball(self, reply):
+        result = True
+        msg = ""
+        
         msg_handler = messages.stop_tracking_req(**reply)
-        msg_response = messages.status_rep(msg_handler.command, True)
 
-        return msg_response
+        return messages.status_rep(msg_handler.command, result, msg)
 
     def calibrate_camera(self, reply):
+        result = True
+        msg = ""
+        
         msg_handler = messages.calibrate_camera_req(**reply)
-        msg_response = messages.status_rep(msg_handler.command, True)
 
-        return msg_response
+        return messages.status_rep(msg_handler.command, result, msg)
 
     def blink_led(self, reply):
+        result = True
+        msg = ""
+        
         msg_handler = messages.configure_led_req(**reply)
-        msg_response = messages.status_rep(msg_handler.command, True)
 
-        return msg_response
+        return messages.status_rep(msg_handler.command, result, msg)
 
     # Debug commands handlers
     
     def start_sending_camera_feed(self, reply):
-        msg_handler = messages.start_sending_camera_feed_req(**reply)
-        msg_response = messages.status_rep(msg_handler.command, True)
+        result = True
+        msg = ""
 
-        self.send_camera_feed = True
-        self.camera_feed_worker.start()
-        return msg_response
+        msg_handler = messages.start_sending_camera_feed_req(**reply)
+        if not self.send_camera_feed:
+            self.send_camera_feed = True        
+        else:
+            result = False
+            msg = "Camera Feed is already running"
+
+        return messages.status_rep(msg_handler.command, result, msg)
     
     def stop_sending_camera_feed(self, reply):
+        result = True
+        msg = ""
+        
         msg_handler = messages.stop_sending_camera_feed_req(**reply)
-        msg_response = messages.status_rep(msg_handler.command, True)
-        self.send_camera_feed = False
+        if self.send_camera_feed:
+            self.send_camera_feed = False
+        else:
+            result = False
+            msg = "Camera Feed is not currently running"
 
-        return msg_response
+        return messages.status_rep(msg_handler.command, result, msg)
 
     def run(self):
         logging.debug("Started the {}".format(threading.current_thread().name))
@@ -112,10 +138,11 @@ class server(object):
     def run_camera_feed(self):
         logging.debug("Started the {}".format(threading.current_thread().name))
         print("Started the {}".format(threading.current_thread().name))
-        while self.send_camera_feed and self.is_connected:
-            left, right = self.camera.getStereoFrames()
-            req = messages.camera_feed_data(left, right)
-            self.camera_feed_session.send(dict(req))
+        while self.is_connected:
+            if self.send_camera_feed:
+                left, right = self.camera.getStereoFrames()
+                req = messages.camera_feed_data(left, right)
+                self.camera_feed_session.send(dict(req))
 
     def __str__(self):
         return "server"
