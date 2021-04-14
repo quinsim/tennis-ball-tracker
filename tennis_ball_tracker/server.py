@@ -36,7 +36,7 @@ class server(object):
             # Debug message handlers
             api.CMD_START_SENDING_CAMERA_FEED: self.start_sending_camera_feed,
             api.CMD_STOP_SENDING_CAMERA_FEED: self.stop_sending_camera_feed,
-            api.CMD_GET_TENNISCOURT_BOUNDARIES_REP: self.get_camera_feed,
+            api.CMD_GET_CAMERA_FEED: self.get_camera_feed,
         }
     
     def connect(self, ip_address):
