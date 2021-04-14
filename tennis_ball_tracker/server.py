@@ -121,6 +121,15 @@ class server(object):
         return messages.status_rep(msg_handler.command, result, msg)
 
     def get_camera_feed(self, reply):
+        msg_handler = messages.test_camera_fps_req(**reply)
+
+        left, right = self.camera.getStereoFrames()
+        left_str = base64.b64encode(cv2.imencode('.jpg', left.ALL)[1]).decode()
+        right_str = base64.b64encode(cv2.imencode('.jpg', right.ALL)[1]).decode()
+
+        return messages.camera_feed_data(left_str, right_str)
+
+    def test_camera_fps(self, reply):
         msg_handler = messages.stop_sending_camera_feed_req(**reply)
 
         now = datetime.datetime.now()
@@ -130,16 +139,7 @@ class server(object):
         total_time = datetime.datetime.now() - now
         fps = number_of_frames / total_time.total_seconds()
 
-        return messages.test_camera_fps(fps)
-
-    def test_camera_fps(self, reply):
-        msg_handler = messages.test_camera_fps_req(**reply)
-
-        left, right = self.camera.getStereoFrames()
-        left_str = base64.b64encode(cv2.imencode('.jpg', left.ALL)[1]).decode()
-        right_str = base64.b64encode(cv2.imencode('.jpg', right.ALL)[1]).decode()
-
-        return messages.camera_feed_data(left_str, right_str)
+        return messages.test_camera_fps_rep(fps)
 
     def run(self):
         logging.debug("Started the {}".format(threading.current_thread().name))
