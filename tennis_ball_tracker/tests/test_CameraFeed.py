@@ -56,16 +56,19 @@ class test_CameraFeed(unittest.TestCase):
         self.assertTrue(np.array_equal(left, self.EXPECTED_RGB))
         self.assertTrue(np.array_equal(right, self.EXPECTED_RGB))
 
+    @unittest.skip("Feature not available")
     def test_getStereoRed(self):
         left, right = self.camera.getStereoRed()
         self.assertTrue(np.array_equal(left, self.EXPECTED_RED))
         self.assertTrue(np.array_equal(right, self.EXPECTED_RED))
 
+    @unittest.skip("Feature not available")
     def test_getStereoGreen(self):
         left, right = self.camera.getStereoGreen()
         self.assertTrue(np.array_equal(left, self.EXPECTED_GREEN))
         self.assertTrue(np.array_equal(right, self.EXPECTED_GREEN))
 
+    @unittest.skip("Feature not available")
     def test_getStereoBlue(self):
         left, right = self.camera.getStereoBlue()
         self.assertTrue(np.array_equal(left, self.EXPECTED_BLUE))
@@ -117,6 +120,7 @@ class test_CameraFeed(unittest.TestCase):
         # self.assertTrue(np.array_equal(left, self.EXPECTED_RGB))
         # self.assertTrue(np.array_equal(right, self.EXPECTED_RGB))
 
+    @unittest.skip("Feature not available")
     def test_saveStereoRed(self):
         path = "/tmp/test.bmp"
         left_path = "/tmp/left_test.bmp"
@@ -128,6 +132,7 @@ class test_CameraFeed(unittest.TestCase):
         # self.assertTrue(np.array_equal(left, self.EXPECTED_RED))
         # self.assertTrue(np.array_equal(right, self.EXPECTED_RED))
 
+    @unittest.skip("Feature not available")
     def test_saveStereoGreen(self):
         path = "/tmp/test.bmp"
         left_path = "/tmp/left_test.bmp"
@@ -139,6 +144,7 @@ class test_CameraFeed(unittest.TestCase):
         # self.assertTrue(np.array_equal(left, self.EXPECTED_GREEN))
         # self.assertTrue(np.array_equal(right, self.EXPECTED_GREEN))
 
+    @unittest.skip("Feature not available")
     def test_saveStereoBlue(self):
         path = "/tmp/test.bmp"
         left_path = "/tmp/left_test.bmp"
