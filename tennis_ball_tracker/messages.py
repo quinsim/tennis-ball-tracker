@@ -28,6 +28,8 @@ class sub_message_t(object):
             else:
                 yield field, value
 
+    def __str__(self):
+        return str(dict(self))
 
 class message_t(sub_message_t):
     """
@@ -215,4 +217,9 @@ class camera_feed_data(message_t):
         super(camera_feed_data, self).__init__(api.CMD_CAMERA_FEED_DATA)
         self.left_feed = left_feed
         self.right_feed = right_feed
+
+    def __str__(self):
+        # Since the left and right feed is so long, we do not
+        # want it represented in the string.
+        return super(camera_feed_data, self).__str__()
     
