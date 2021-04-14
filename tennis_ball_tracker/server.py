@@ -142,8 +142,8 @@ class server(object):
         while self.is_connected:
             if self.send_camera_feed:
                 left, right = self.camera.getStereoFrames()
-                left_str = base64.b64encode(cv2.imencode('.jpg', left)[1]).decode()
-                right_str = base64.b64encode(cv2.imencode('.jpg', right)[1]).decode()
+                left_str = base64.b64encode(cv2.imencode('.jpg', left.ALL)[1]).decode()
+                right_str = base64.b64encode(cv2.imencode('.jpg', right.ALL)[1]).decode()
                 req = messages.camera_feed_data(left_str, right_str)
                 self.camera_feed_session.send(dict(req))
 
