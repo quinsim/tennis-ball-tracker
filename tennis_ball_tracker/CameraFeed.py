@@ -7,9 +7,9 @@ import ctypes
 import numpy as np
 
 # Local application imports
+import tennis_ball_tracker.config as config
 
-# DOT_SO_PATH = "/fusion2/camera_feed.so"
-DOT_SO_PATH = "/fusion2/imageFeedthroughDriver.so"
+DOT_SO_PATH = os.path.join(config.DEPENDENCIES, "imageFeedthroughDriver.so")
 
 class Frame(object):
     """
