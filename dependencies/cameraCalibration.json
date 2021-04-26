@@ -1,0 +1,52 @@
+{
+    "focal_length": 5.878,
+    "baseline": 58.8104,
+    "tag_size_meters": 0.1,
+    "pixel_size": 0.006,
+    "left_camera_matrix": [
+        [
+            984.7575,
+            0,
+            310.7146
+        ],
+        [
+            0,
+            983.0474,
+            261.7735
+        ],
+        [
+            0,
+            0,
+            1
+        ]
+    ],
+    "right_camera_matrix": [
+        [
+            977.0625,
+            0,
+            346.9222
+        ],
+        [
+            0,
+            975.8967,
+            290.9704
+        ],
+        [
+            0,
+            0,
+            1
+        ]
+    ],
+    "left_distortion_coefficients": [
+        -0.3084,
+        -0.1320,
+        0,
+        0
+    ],
+    "right_distortion_coefficients": [
+        -0.3012,
+        -1.7047,
+        0,
+        0
+    ]
+}
