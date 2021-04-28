@@ -66,3 +66,49 @@ def calibrate_camera(path_to_img, grid_pattern, checkerboard_square_size_mm = 25
         raise CalibrationError("Failed to calibrate the camera with the given images.")
 
     return camera_matrix, distortion, rotation_vectors, translation_vectors
+
+if __name__ == "__main__":
+    import os
+    import tempfile
+    import tennis_ball_tracker.snickerdoodle_camera_constants as snickerdoodle_camera_constants
+
+    print("Calibrating the left camera...")
+    calibration_files = os.path.join(tempfile.gettempdir(), "left")
+    camera_matrix, distortion, _, _ = calibrate_camera(
+        calibration_files,
+        (8, 6),
+        25,
+        ".png"
+    )
+    print("Intrinsic Camera Matrix")
+    print(camera_matrix)
+    print("Distortion coefficients")
+    print(distortion)
+
+    fx = camera_matrix[0][0]
+    Fx = fx * snickerdoodle_camera_constants.SENSOR_HEIGHT_MM / snickerdoodle_camera_constants.PIXEL_HEIGHT
+    fy = camera_matrix[1][1]
+    Fy = fy * snickerdoodle_camera_constants.SENSOR_WIDTH_MM / snickerdoodle_camera_constants.PIXEL_WIDTH
+    print("Focal length: " + str((Fx + Fy) / 2))
+    print("Expected Focal length: " + snickerdoodle_camera_constants.EXPECTED_FOCAL_LENGTH_MM)
+
+
+    print("Calibrating the right camera...")
+    calibration_files = os.path.join(tempfile.gettempdir(), "right")
+    camera_matrix, distortion, _, _ = calibrate_camera(
+        calibration_files,
+        (8, 6),
+        25,
+        ".png"
+    )
+    print("Intrinsic Camera Matrix")
+    print(camera_matrix)
+    print("Distortion coefficients")
+    print(distortion)
+
+    fx = camera_matrix[0][0]
+    Fx = fx * snickerdoodle_camera_constants.SENSOR_HEIGHT_MM / snickerdoodle_camera_constants.PIXEL_HEIGHT
+    fy = camera_matrix[1][1]
+    Fy = fy * snickerdoodle_camera_constants.SENSOR_WIDTH_MM / snickerdoodle_camera_constants.PIXEL_WIDTH
+    print("Focal length: " + str((Fx + Fy) / 2))
+    print("Expected Focal length: " + snickerdoodle_camera_constants.EXPECTED_FOCAL_LENGTH_MM)
