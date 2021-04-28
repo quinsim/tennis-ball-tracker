@@ -12,15 +12,18 @@ class CalibrationError(Exception):
     pass
 
 
-def calibrate_camera(path_to_img, grid_pattern, img_ext = ".png", use_circle_grid = False):
+def calibrate_camera(path_to_img, grid_pattern, checkerboard_square_size_mm = 25, img_ext = ".png", use_circle_grid = False):
     """
     Calibrate a camera using a set of calibration images.
 
     The camera can be calibrates using images of a  ```Chessboard Grid``` or a ```Circle Grid```.
 
+    NOTE: The checkerboard_square_size_mm will only effect the extrinsic parameters (rotational_vectors, translation_vectors).
+
     Args:
         path_to_img (str): Path to the calibration images.
         grid_pattern (Tuple[int, int]): The pattern of your calibration grid.
+        checkerboard_square_size_mm (int, optional): The square size of your calibration checkerboard in millimeters
         img_ext (str, optional): The image extention of the calibration images. Defaults to ```.png```.
         use_circle_grid (bool, optional): Whether a circular grid pattern is used for calibration. Defaults to False.
 
@@ -32,8 +35,9 @@ def calibrate_camera(path_to_img, grid_pattern, img_ext = ".png", use_circle_gri
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
     # Prepare the object points. (0, 0, 0), (1, 0, 0), (2, 0, 0), ... (grid_pattern[0]-1, grid_pattern[1]-1, 0)
-    empty_obj_point = np.zeroes((grid_pattern[0] * grid_pattern[1], 3), np.float32)
-    empty_obj_point[:,:2] = np.mgrid[0:grid_pattern[0], 0:grid_pattern[1]].T.reshape(-1, 2)
+    empty_obj_point = np.zeros((grid_pattern[0] * grid_pattern[1], 3), np.float32)
+    grid = np.mgrid[0:grid_pattern[0], 0:grid_pattern[1]] * checkerboard_square_size_mm
+    empty_obj_point[:,:2] = grid.T.reshape(-1, 2)
 
     obj_points = [] # 3D points in real world space
     img_points = [] # 2D points in image plane
@@ -51,10 +55,12 @@ def calibrate_camera(path_to_img, grid_pattern, img_ext = ".png", use_circle_gri
 
         if ret:
             obj_points.append(empty_obj_point)
-            corners_ = cv2.cornersSubPix(greyscale_img, corners, (11, 11), (-1, -1), criteria)
+            corners_ = cv2.cornerSubPix(greyscale_img, corners, (11, 11), (-1, -1), criteria)
             img_points.append(corners_)
+        else:
+            print(img_path + " is an invalid calibration image.")
 
-    ret, camera_matrix distortion, rotation_vectors, translation_vectors = cv2.calibrateCamera(obj_points, img_points, grey.shape[::-1], None, None)
+    ret, camera_matrix, distortion, rotation_vectors, translation_vectors = cv2.calibrateCamera(obj_points, img_points, greyscale_img.shape[::-1], None, None)
 
     if not ret:
         raise CalibrationError("Failed to calibrate the camera with the given images.")
