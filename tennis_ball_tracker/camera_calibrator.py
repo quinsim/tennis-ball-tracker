@@ -34,7 +34,7 @@ class CameraCalibrator(threading.Thread):
     REQUIRED_NUMBER_OF_IMGS = 20
 
     def __init__(self, grid_pattern, path_to_store_imgs = tempfile.gettempdir(), img_ext = ".png", use_circle_grid = False,  camera = None):
-        super(threading.Thread, self).__init__(name="Camera Calibrator")
+        super(CameraCalibrator, self).__init__(name="Camera Calibrator")
         self.path_to_store_imgs = path_to_store_imgs
         self.grid_pattern = grid_pattern
         self.img_ext = img_ext
@@ -88,8 +88,8 @@ class CameraCalibrator(threading.Thread):
         """Run the camera calibration process."""
         message_queue.put("Starting the Camera Calibration process...")
 
-        LEFT_PATH = os.path.join(path_to_store_imgs, "left")
-        RIGHT_PATH = os.path.join(path_to_store_imgs, "right")
+        LEFT_PATH = os.path.join(self.path_to_store_imgs, "left")
+        RIGHT_PATH = os.path.join(self.path_to_store_imgs, "right")
 
         message_queue.put("Clearing any sale calibration files...")
 
