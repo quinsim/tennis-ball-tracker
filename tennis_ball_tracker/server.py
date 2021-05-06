@@ -1,5 +1,6 @@
 # Standard library imports
 import cv2
+import json
 import base64
 import logging
 import datetime
@@ -7,14 +8,12 @@ import threading
 # Third party imports
 
 # Local application imports
-from tennis_ball_tracker.CameraFeed import CameraFeed
+import tennis_ball_tracker.config as config
 from tennis_ball_tracker import api
 from tennis_ball_tracker import session 
 from tennis_ball_tracker import messages
-
-
-IP_ADDRESS = "127.0.0.1"
-
+from tennis_ball_tracker.CameraFeed import CameraFeed
+from tennis_ball_tracker.calibration import camera_calibration
 class server(object):
 
     def __init__(self, ctrl_port, camera_feed_port):
@@ -82,8 +81,39 @@ class server(object):
         
         msg_handler = messages.calibrate_camera_req(**reply)
 
-        return messages.status_rep(msg_handler.command, result, msg)
+        if result:
+            try:
+                left_cam = camera_calibration.calibrate_camera(
+                    config.LEFT_CALIBRATION_IMGS,
+                    tuple(config.CALIBRATION_GRID_PTRN),
+                )
+            except Exception as e:
+                msg+= = "Failed to calibrate the left camera!\n" + str(e)
+                result = False
 
+        if result:
+            try:
+                right_cam = camera_calibration.calibrate_camera(
+                    config.RIGHT_CALIBRATION_IMGS,
+                    tuple(config.CALIBRATION_GRID_PTRN),
+                )
+            except Exception as e:
+                msg+= = "Failed to calibrate the right camera!\n" + str(e)
+                result = False
+
+        if result:
+            try:
+                camera_calibration.save_camera_calibration(
+                    config.CALIBRATION_CONFIG,
+                    *left_cam,
+                    *right_cam,
+                )
+            except Exception as e:
+                msg+= = "Failed to save the calibrate data!\n" + str(e)
+                result = False
+
+        return messages.status_rep(msg_handler.command, result, msg)
+        
     def blink_led(self, reply):
         result = True
         msg = ""
