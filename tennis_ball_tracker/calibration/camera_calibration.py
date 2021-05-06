@@ -1,6 +1,7 @@
 # Standard library imports
 import os
 import glob
+import json
 
 # Third party imports
 import cv2
@@ -67,13 +68,55 @@ def calibrate_camera(path_to_img, grid_pattern, checkerboard_square_size_mm = 25
 
     return camera_matrix, distortion, rotation_vectors, translation_vectors
 
-if __name__ == "__main__":
-    import os
-    import tempfile
-    import tennis_ball_tracker.snickerdoodle_camera_constants as snickerdoodle_camera_constants
+def save_camera_calibration(
+    path_to_camera_config_file,
+    left_camera_matrix,
+    left_distortion,
+    left_rotation_vectors,
+    left_translation_vectors,
+    right_camera_matrix,
+    right_distortion,
+    right_rotation_vectors,
+    right_translation_vectors,
+):
+    fx = left_camera_matrix[0][0]
+    Fx = fx * snickerdoodle_camera_constants.SENSOR_HEIGHT_MM / snickerdoodle_camera_constants.PIXEL_HEIGHT
+    fy = left_camera_matrix[1][1]
+    Fy = fy * snickerdoodle_camera_constants.SENSOR_WIDTH_MM / snickerdoodle_camera_constants.PIXEL_WIDTH
+    left_focal_length = (Fx + Fy) / 2
 
+    fx = right_camera_matrix[0][0]
+    Fx = fx * snickerdoodle_camera_constants.SENSOR_HEIGHT_MM / snickerdoodle_camera_constants.PIXEL_HEIGHT
+    fy = right_camera_matrix[1][1]
+    Fy = fy * snickerdoodle_camera_constants.SENSOR_WIDTH_MM / snickerdoodle_camera_constants.PIXEL_WIDTH
+    right_focal_length = (Fx + Fy) / 2
+
+    config = {}
+    try:
+        with open(path_to_camera_config_file, 'r') as file_:
+            config = json.load(file_)
+    except:
+        pass
+
+    config["focal_length"] = (left_focal_length + right_focal_length) / 2
+    config["baseline"] = None
+    # config["tag_size_meters"] = None
+    # config["pixel_size"] = None
+    config["left_camera_matrix"] = left_camera_matrix.tolist()
+    config["right_camera_matrix"] = right_camera_matrix.tolist()
+    config["left_distortion_coefficients"] = left_distortion.tolist()
+    config["right_distortion_coefficients"] = right_distortion.tolist()
+
+    with open(path_to_camera_config_file, 'w') as file_:
+        file_.write(json.dumps(file_, indent=2))
+    
+
+if __name__ == "__main__":
+    import tennis_ball_tracker.snickerdoodle_camera_constants as snickerdoodle_camera_constants
+    import tennis_ball_tracker.config as config
+    
     print("Calibrating the left camera...")
-    calibration_files = os.path.join(tempfile.gettempdir(), "left")
+    calibration_files = config.LEFT_CALIBRATION_IMGS
     camera_matrix, distortion, _, _ = calibrate_camera(
         calibration_files,
         (8, 6),
@@ -94,7 +137,7 @@ if __name__ == "__main__":
 
 
     print("Calibrating the right camera...")
-    calibration_files = os.path.join(tempfile.gettempdir(), "right")
+    calibration_files = config.RIGHT_CALIBRATION_IMGS
     camera_matrix, distortion, _, _ = calibrate_camera(
         calibration_files,
         (8, 6),
