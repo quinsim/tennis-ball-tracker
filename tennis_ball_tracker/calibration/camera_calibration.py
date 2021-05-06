@@ -1,6 +1,7 @@
 # Standard library imports
 import os
 import glob
+import json
 
 # Third party imports
 import cv2
@@ -67,19 +68,68 @@ def calibrate_camera(path_to_img, grid_pattern, checkerboard_square_size_mm = 25
 
     return camera_matrix, distortion, rotation_vectors, translation_vectors
 
-if __name__ == "__main__":
-    import os
-    import tempfile
-    import tennis_ball_tracker.snickerdoodle_camera_constants as snickerdoodle_camera_constants
+def save_camera_calibration(
+    path_to_camera_config_file,
+    left_cam,
+    right_cam,
+    # left_camera_matrix,
+    # left_distortion,
+    # left_rotation_vectors,
+    # left_translation_vectors,
+    # right_camera_matrix,
+    # right_distortion,
+    # right_rotation_vectors,
+    # right_translation_vectors,
+):
+    left_camera_matrix, left_distortion, left_rotation_vectors, left_translation_vectors = left_cam
+    right_camera_matrix, right_distortion, right_rotation_vectors, right_translation_vectors = right_cam
 
+
+    fx = left_camera_matrix[0][0]
+    Fx = fx * snickerdoodle_camera_constants.SENSOR_HEIGHT_MM / snickerdoodle_camera_constants.PIXEL_HEIGHT
+    fy = left_camera_matrix[1][1]
+    Fy = fy * snickerdoodle_camera_constants.SENSOR_WIDTH_MM / snickerdoodle_camera_constants.PIXEL_WIDTH
+    left_focal_length = (Fx + Fy) / 2
+
+    fx = right_camera_matrix[0][0]
+    Fx = fx * snickerdoodle_camera_constants.SENSOR_HEIGHT_MM / snickerdoodle_camera_constants.PIXEL_HEIGHT
+    fy = right_camera_matrix[1][1]
+    Fy = fy * snickerdoodle_camera_constants.SENSOR_WIDTH_MM / snickerdoodle_camera_constants.PIXEL_WIDTH
+    right_focal_length = (Fx + Fy) / 2
+
+    config = {}
+    try:
+        with open(path_to_camera_config_file, 'r') as file_:
+            config = json.load(file_)
+    except:
+        pass
+
+    config["focal_length"] = (left_focal_length + right_focal_length) / 2
+    # config["baseline"] = None
+    # config["tag_size_meters"] = None
+    # config["pixel_size"] = None
+    config["left_camera_matrix"] = left_camera_matrix.tolist()
+    config["right_camera_matrix"] = right_camera_matrix.tolist()
+    config["left_distortion_coefficients"] = left_distortion.tolist()
+    config["right_distortion_coefficients"] = right_distortion.tolist()
+
+    with open(path_to_camera_config_file, 'w') as file_:
+        json.dump(config, file_, indent=2)
+    
+
+if __name__ == "__main__":
+    import tennis_ball_tracker.snickerdoodle_camera_constants as snickerdoodle_camera_constants
+    import tennis_ball_tracker.config as config
+    
     print("Calibrating the left camera...")
-    calibration_files = os.path.join(tempfile.gettempdir(), "left")
-    camera_matrix, distortion, _, _ = calibrate_camera(
+    calibration_files = config.LEFT_CALIBRATION_IMGS
+    left_cam = calibrate_camera(
         calibration_files,
         (8, 6),
         25,
         ".png"
     )
+    camera_matrix, distortion, _, _ = left_cam
     print("Intrinsic Camera Matrix")
     print(camera_matrix)
     print("Distortion coefficients")
@@ -90,17 +140,18 @@ if __name__ == "__main__":
     fy = camera_matrix[1][1]
     Fy = fy * snickerdoodle_camera_constants.SENSOR_WIDTH_MM / snickerdoodle_camera_constants.PIXEL_WIDTH
     print("Focal length: " + str((Fx + Fy) / 2))
-    print("Expected Focal length: " + snickerdoodle_camera_constants.EXPECTED_FOCAL_LENGTH_MM)
+    print("Expected Focal length: " + str(snickerdoodle_camera_constants.EXPECTED_FOCAL_LENGTH_MM))
 
 
     print("Calibrating the right camera...")
-    calibration_files = os.path.join(tempfile.gettempdir(), "right")
-    camera_matrix, distortion, _, _ = calibrate_camera(
+    calibration_files = config.RIGHT_CALIBRATION_IMGS
+    right_cam = calibrate_camera(
         calibration_files,
         (8, 6),
         25,
         ".png"
     )
+    camera_matrix, distortion, _, _ = right_cam
     print("Intrinsic Camera Matrix")
     print(camera_matrix)
     print("Distortion coefficients")
@@ -111,4 +162,10 @@ if __name__ == "__main__":
     fy = camera_matrix[1][1]
     Fy = fy * snickerdoodle_camera_constants.SENSOR_WIDTH_MM / snickerdoodle_camera_constants.PIXEL_WIDTH
     print("Focal length: " + str((Fx + Fy) / 2))
-    print("Expected Focal length: " + snickerdoodle_camera_constants.EXPECTED_FOCAL_LENGTH_MM)
+    print("Expected Focal length: " + str(snickerdoodle_camera_constants.EXPECTED_FOCAL_LENGTH_MM))
+
+    save_camera_calibration(
+        config.CALIBRATION_CONFIG,
+        left_cam,
+        right_cam
+    )
