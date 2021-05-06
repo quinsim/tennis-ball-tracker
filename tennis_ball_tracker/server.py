@@ -105,8 +105,8 @@ class server(object):
             try:
                 camera_calibration.save_camera_calibration(
                     config.CALIBRATION_CONFIG,
-                    *left_cam,
-                    *right_cam,
+                    left_cam,
+                    right_cam,
                 )
             except Exception as e:
                 msg+= = "Failed to save the calibrate data!\n" + str(e)
