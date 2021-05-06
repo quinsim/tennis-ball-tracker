@@ -117,12 +117,13 @@ if __name__ == "__main__":
     
     print("Calibrating the left camera...")
     calibration_files = config.LEFT_CALIBRATION_IMGS
-    camera_matrix, distortion, _, _ = calibrate_camera(
+    left_cam = calibrate_camera(
         calibration_files,
         (8, 6),
         25,
         ".png"
     )
+    camera_matrix, distortion, _, _ = left_cam
     print("Intrinsic Camera Matrix")
     print(camera_matrix)
     print("Distortion coefficients")
@@ -138,12 +139,13 @@ if __name__ == "__main__":
 
     print("Calibrating the right camera...")
     calibration_files = config.RIGHT_CALIBRATION_IMGS
-    camera_matrix, distortion, _, _ = calibrate_camera(
+    right_cam = calibrate_camera(
         calibration_files,
         (8, 6),
         25,
         ".png"
     )
+    camera_matrix, distortion, _, _ = right_cam
     print("Intrinsic Camera Matrix")
     print(camera_matrix)
     print("Distortion coefficients")
@@ -155,3 +157,9 @@ if __name__ == "__main__":
     Fy = fy * snickerdoodle_camera_constants.SENSOR_WIDTH_MM / snickerdoodle_camera_constants.PIXEL_WIDTH
     print("Focal length: " + str((Fx + Fy) / 2))
     print("Expected Focal length: " + snickerdoodle_camera_constants.EXPECTED_FOCAL_LENGTH_MM)
+
+    save_camera_calibration(
+        config.CALIBRATION_CONFIG,
+        *left_cam,
+        *right_cam
+    )
