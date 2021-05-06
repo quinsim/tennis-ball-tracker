@@ -12,7 +12,7 @@ import cv2
 
 # Local application imports
 from tennis_ball_tracker.CameraFeed import CameraFeed
-
+import tennis_ball_tracker.config as config
 
 message_queue = Queue(-1)
 lock = threading.Event()
@@ -35,7 +35,7 @@ class CameraCalibrator(threading.Thread):
     """
     REQUIRED_NUMBER_OF_IMGS = 20
 
-    def __init__(self, grid_pattern, path_to_store_imgs = tempfile.gettempdir(), img_ext = ".png", use_circle_grid = False,  camera = None):
+    def __init__(self, grid_pattern, path_to_store_imgs = config.CALIBRATION_FOLDERS, img_ext = ".png", use_circle_grid = False,  camera = None):
         super(CameraCalibrator, self).__init__(name="Camera Calibrator")
         self.LEFT_PATH = os.path.join(path_to_store_imgs, "left")
         self.RIGHT_PATH = os.path.join(path_to_store_imgs, "right")
