@@ -58,3 +58,7 @@ class test_apriltag_detection():
                 print(positionCentimeters)
 
         self.tearDown()
+
+if __name__ == "__main__":
+    t = test_apriltag_detection()
+    t.test()
