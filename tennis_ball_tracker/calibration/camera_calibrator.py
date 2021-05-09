@@ -100,6 +100,9 @@ class CameraCalibrator(threading.Thread):
         if not os.path.isdir(path_to_store_imgs):
             os.mkdir(path_to_store_imgs)
 
+    def to_greyscale(self, img):
+        return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        
     def run(self):
         """Run the camera calibration process."""
         message_queue.put("Starting the Camera Calibration process...")
